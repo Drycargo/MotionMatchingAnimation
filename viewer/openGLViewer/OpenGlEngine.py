@@ -3,6 +3,7 @@ import pygame as pg
 import moderngl as mgl
 from utils.MouseState import MouseState
 from viewer.openGLViewer.Camera import Camera
+from viewer.openGLViewer.Scene import Scene
 from viewer.openGLViewer.ShaderPrograms import ShaderPrograms
 from viewer.openGLViewer.Mesh import MeshManager
 
@@ -19,7 +20,6 @@ class OpenGlEngine:
 
         self.context = mgl.create_context()
         self.context.enable(flags= mgl.DEPTH_TEST|mgl.CULL_FACE)
-        self.shaderManager = ShaderPrograms(self.context)
 
         self.clock = pg.time.Clock()
         self.time = 0
@@ -28,6 +28,7 @@ class OpenGlEngine:
 
         self.camera = Camera(self, pos=glm.vec3(0, 0, 5))
         self.meshManager = MeshManager(self)
+        self.scene = Scene(self)
 
     def addLight(self, newLight):
         self.lights.add(newLight)
@@ -38,10 +39,7 @@ class OpenGlEngine:
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
 
     def destroy(self):
-        for obj in self.objects:
-            obj.destroy()
         self.meshManager.destroy()
-        self.shaderManager.destroy()
 
     def checkEvents(self):
         scrolled = False
@@ -71,9 +69,7 @@ class OpenGlEngine:
     def render(self):
         # Clear with color
         self.context.clear(color = self.BG_COLOR)
-
-        for obj in self.objects:
-            obj.render()
+        self.scene.render()
         # Swap buffer
         pg.display.flip()
 
@@ -85,4 +81,4 @@ class OpenGlEngine:
             self.clock.tick(self.FRAME_DURATION)
 
     def addModel(self, geoModel):
-        self.objects.add(geoModel)
+        self.scene.addObject(geoModel)

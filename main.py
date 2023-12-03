@@ -19,7 +19,6 @@ def startSimpleViewer():
 
 def startOpenGlViewer():
     openGlViewer = OpenGlEngine()
-    # openGlViewer.addModel([(-0.5, -0.5, 0), (0.5, -0.5, 0), (0, 0.5, 0)], [(0, 1, 2)])
     sampleLight = Light(pos=glm.vec3(0, 0, 1), color=glm.vec3(1, 1, 1))
     openGlViewer.addLight(sampleLight)
     verticePos = [
@@ -59,13 +58,11 @@ def startOpenGlViewer():
 
     model = RotateModel(
         openGlViewer,
-        dataIndPairs=[
-            (verticeUv, triangleIndiceUv),
-            (verticeNormal, triangleIndiceNormal),
-            (verticePos, triangleIndicePos)],
+        vertexArrayName= 'Cube',
         axis=glm.sphericalRand(1.0),
-        rotationSpeed=0.02)
-    model.addTexture("\\textures\\img_1.png")
+        rotationSpeed=0.02,
+        textureName = "img_1.png"
+    )
     openGlViewer.addModel(model)
     openGlViewer.run()
 
