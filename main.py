@@ -18,53 +18,27 @@ def startSimpleViewer():
     simpleViewer.startAnimation()
 
 def startOpenGlViewer():
+
+    anim = BvhAnimation(filePath="animations/sprint1_subject4.bvh", useRad=False)
+    openGlViewer = OpenGlEngine(animDatabase=anim)
+    sampleLight = Light(pos=glm.vec3(0, 0, 200), color=glm.vec3(1, 1, 1))
+    openGlViewer.addLight(sampleLight)
+    anim.createModels(openGlViewer)
+    openGlViewer.run()
+    '''
     openGlViewer = OpenGlEngine()
     sampleLight = Light(pos=glm.vec3(0, 0, 1), color=glm.vec3(1, 1, 1))
     openGlViewer.addLight(sampleLight)
-    verticePos = [
-        (-0.5, 0.5, 0.5), (0.5, 0.5, -0.5),  # 0 1
-        (-0.5, -0.5, 0.5), (0.5, -0.5, -0.5),  # 2 3
-        (0.5, 0.5, 0.5), (-0.5, 0.5, -0.5),  # 4 5
-        (0.5, -0.5, 0.5), (-0.5, -0.5, -0.5),  # 6 7
-    ]
-    triangleIndicePos = [
-        (0, 4, 5), (4, 1, 5),
-        (2, 6, 0), (6, 4, 0),
-        (6, 3, 4), (3, 1, 4),
-        (2, 7, 6), (6, 7, 3),
-        (2, 0, 7), (7, 0, 5),
-        (1, 3, 7), (7, 5, 1)
-    ]
-
-    verticeUv = [(0, 0), (1, 0), (0, 1), (1, 1)]
-    triangleIndiceUv = [
-        (0, 2, 1), (2, 3, 1),
-        (2, 3, 0), (3, 1, 0),
-        (2, 3, 0), (3, 1, 0),
-        (0, 2, 1), (1, 2, 3),
-        (3, 1, 2), (2, 1, 0),
-        (0, 2, 3), (3, 1, 0)
-    ]
-
-    verticeNormal = [(0, 0, 1), (0, 0, -1), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0)]
-    triangleIndiceNormal = [
-        (4, 4, 4), (4, 4, 4),
-        (0, 0, 0), (0, 0, 0),
-        (2, 2, 2), (2, 2, 2),
-        (5, 5, 5), (5, 5, 5),
-        (3, 3, 3), (3, 3, 3),
-        (1, 1, 1), (1, 1, 1)
-    ]
-
-    model = RotateModel(
+    model = GeometryModel(
         openGlViewer,
         vertexArrayName= 'Cube',
-        axis=glm.sphericalRand(1.0),
-        rotationSpeed=0.02,
-        textureName = "img_1.png"
+        textureName = "img_1.png",
+        initRot=(0,0,45),
+        initScale=(2,1,1)
     )
     openGlViewer.addModel(model)
     openGlViewer.run()
+    '''
 
 if __name__ == "__main__":
     print("main starts.")

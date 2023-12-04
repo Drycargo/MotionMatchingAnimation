@@ -1,6 +1,9 @@
+import glm
 import numpy as np
 
 from utils.MatrixUtils import Dir, getRotMat
+from viewer.openGLViewer.OpenGlEngine import OpenGlEngine
+from viewer.openGLViewer.modelTypes.RigModel import RigModel, END_SITE_PREFIX
 
 ROOT_STR = "root"
 JOINT_STR = "joint"
@@ -46,6 +49,9 @@ class BvhAnimation:
         with open(filePath) as bvhContent:
             self.parseFile(bvhContent)
 
+    def getNode(self, nodeName):
+        return self.bvhNodes[nodeName]
+
     def update(self):
         self.updateAnimation(self.currentFrame)
         self.currentFrame +=1
@@ -64,7 +70,7 @@ class BvhAnimation:
             posOffset = currNode.offsetValues
 
             #parentRotMat = self.bvhNodes[currNode.parent].currentRotMat if currNode.parent else np.eye(3)
-            currNode.currentRotMat = self.bvhNodes[currNode.parent].currentRotMat if currNode.parent else np.eye(3)
+            currNode.currentRotMat = self.bvhNodes[currNode.parent].currentRotMat if currNode.parent else glm.mat3()
 
             for i in range(0, len(currNode.channelNames)):
                 channelName = currNode.channelNames[i]
@@ -94,13 +100,27 @@ class BvhAnimation:
                 # root
                 currNode.currentWorldPos = posOffset
 
-    def getRenderData(self):
+    def getNodeTransformTuple(self, nodeName, isEnsite = False):
+        # Fetch central position and rotation (based on parent node) matrix
+        centralPos = None
+        rotationMat = None
+        if isEnsite:
+            currNode: BvhNode = self.bvhNodes[nodeName]
+            centralPos = currNode.currentWorldPos + 0.5 * currNode.currentRotMat @ currNode.endsiteOffset
+            rotationMat = currNode.currentRotMat
+        else:
+            currNode: BvhNode = self.bvhNodes[nodeName]
+            parentNode: BvhNode = self.bvhNodes[currNode.parent]
+            centralPos = (currNode.currentWorldPos + parentNode.currentWorldPos) / 2
+            rotationMat = parentNode.currentRotMat
+
+        return (centralPos, rotationMat)
+
+    def getSimpleRenderData(self):
         result = []
 
-        #print("\nGet Render Data:")
         for nodeName in self.traverseOrder:
             currNode = self.bvhNodes[nodeName]
-            #print(currNode)
             if not currNode.parent:
                 continue
 
@@ -111,6 +131,29 @@ class BvhAnimation:
                 result.append((currNode.currentWorldPos, currNode.currentWorldPos + currNode.currentRotMat @ currNode.endsiteOffset))
 
         return result
+
+    def createModels(self, renderEngine: OpenGlEngine):
+        for node in self.bvhNodes.values():
+            if node.name in self.rootNames:
+                continue
+            newRigModel = RigModel(
+                renderEngine = renderEngine,
+                vertexArrayName = 'Cube',
+                animDatabase = self,
+                nodeName= node.name,
+                textureName='red pixel.png'
+            )
+            renderEngine.addModel(newRigModel)
+
+            if node.endsiteOffset and glm.length(node.endsiteOffset) > 0:
+                endsiteModel = RigModel(
+                    renderEngine = renderEngine,
+                    vertexArrayName = 'Cube',
+                    animDatabase = self,
+                    nodeName= "{}{}".format(END_SITE_PREFIX, node.name),
+                    textureName='white pixel.png'
+                )
+                renderEngine.addModel(endsiteModel)
 
     def parseFile(self, bvhContent):
         self.readingHierarchy = True

@@ -8,10 +8,9 @@ from viewer.openGLViewer.ShaderPrograms import ShaderPrograms
 from viewer.openGLViewer.Mesh import MeshManager
 
 class OpenGlEngine:
-    def __init__(self, dim = (720, 540), backgroundColor = (0.8, 0.8, 0.8, 1.0), frameDuration = 60):
+    def __init__(self, dim = (720, 540), backgroundColor = (0.8, 0.8, 0.8, 1.0), fps = 60, animDatabase = None):
         self.WINDOW_DIM = dim
         self.BG_COLOR = backgroundColor
-        self.FRAME_DURATION = frameDuration
         self.mouseState = MouseState()
 
         pg.init()
@@ -26,9 +25,15 @@ class OpenGlEngine:
         self.objects = set()
         self.lights = set()
 
-        self.camera = Camera(self, pos=glm.vec3(0, 0, 5))
+        self.camera = Camera(self, pos=glm.vec3(500, 500, 500), far=1500, yaw = -135, pitch = -45)
         self.meshManager = MeshManager(self)
         self.scene = Scene(self)
+        self.animDatabase = animDatabase
+
+        if self.animDatabase:
+            self.FPS = 1.0/self.animDatabase.frameDuration
+        else:
+            self.FPS = fps
 
     def addLight(self, newLight):
         self.lights.add(newLight)
@@ -77,8 +82,10 @@ class OpenGlEngine:
         while self.checkEvents():
             self.time = pg.time.get_ticks() * 0.001
             self.camera.update()
+            if self.animDatabase:
+                self.animDatabase.update()
             self.render()
-            self.clock.tick(self.FRAME_DURATION)
+            self.clock.tick(self.FPS)
 
     def addModel(self, geoModel):
         self.scene.addObject(geoModel)

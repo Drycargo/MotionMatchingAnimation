@@ -12,6 +12,13 @@ class VertexBufferManager:
             config = {'format': '2f 3f 3f', 'attr': ['in_texcoord_0', 'in_normal', 'in_position']}
         )
 
+        # Add Plane
+        self.addVertexBuffer(
+            'Plane',
+            dataIndPairs= VertexBufferManager.getPlaneIndPairs(),
+            config={'format': '2f 3f', 'attr': ['in_texcoord_0', 'in_position']}
+        )
+
     def addVertexBuffer(self, name, dataIndPairs, config):
         newBufferObj = VertexBufferObj(self.context, rawData = dataIndPairs, config = config)
         self.vertexBuffers[name] = newBufferObj
@@ -24,6 +31,25 @@ class VertexBufferManager:
     def destroy(self):
         for buffer in self.vertexBuffers.values():
             buffer.destroy()
+
+    @staticmethod
+    def getPlaneIndPairs():
+        verticePos = [
+            (-0.5, 0, -0.5), (0.5, 0, -0.5),
+            (-0.5, 0, 0.5), (0.5, 0, 0.5)
+        ]
+        triangleIndicePos = [
+            (0, 2, 1), (1, 2, 3)
+        ]
+        verticeUv = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        triangleIndiceUv = [
+            (0, 2, 1), (1, 2, 3)
+        ]
+
+        return [
+            (verticeUv, triangleIndiceUv),
+            (verticePos, triangleIndicePos)]
+
 
     @staticmethod
     def getCubeIndPairs():

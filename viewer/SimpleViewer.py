@@ -27,7 +27,7 @@ class SimpleViewer:
         self.axes.set_zlim(-DIMENSION,DIMENSION)
 
         self.animationDatabase.updateAnimation(frame)
-        self.draw(self.animationDatabase.getRenderData())
+        self.draw(self.animationDatabase.getSimpleRenderData())
 
     def draw(self, data):
         for pointPair in data:

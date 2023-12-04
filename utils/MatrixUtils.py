@@ -1,3 +1,4 @@
+import glm
 import numpy as np
 from enum import Enum
 
@@ -11,7 +12,7 @@ class Dir(Enum):
 def getRotMat(angle, axis, useRad=False):
     if not useRad:
         angle = np.radians(angle)
-
+    '''
     if axis == Dir.X:
         return np.array([
             [1, 0, 0],
@@ -27,3 +28,20 @@ def getRotMat(angle, axis, useRad=False):
             [np.cos(angle), -np.sin(angle), 0],
             [np.sin(angle), np.cos(angle), 0],
             [0, 0, 1]])
+    '''
+
+    if axis == Dir.X:
+        return glm.mat3(
+            1, 0, 0,
+            0, np.cos(angle), np.sin(angle),
+            0, -np.sin(angle), np.cos(angle))
+    elif axis == Dir.Y:
+        return glm.mat3(
+            np.cos(angle), 0, -np.sin(angle),
+            0, 1, 0,
+            np.sin(angle), 0, np.cos(angle))
+    else:
+        return glm.mat3(
+            np.cos(angle), np.sin(angle), 0,
+            -np.sin(angle), np.cos(angle), 0,
+            0, 0, 1)
