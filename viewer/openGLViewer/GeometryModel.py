@@ -13,14 +13,12 @@ class GeometryModel:
         self.texture = self.renderEngine.meshManager.textureManager.getTexture(textureName) if textureName else None
 
         self.shaderProgram = self.vertexArray.program
-        #self.modelMat = self.getModelMat()
 
         self.initialize()
 
     def initialize(self):
         self.shaderProgram['projectionMat'].write(self.renderEngine.camera.getProjectionMat())
         self.shaderProgram['viewMat'].write(self.renderEngine.camera.getViewMat())
-        #self.shaderProgram['modelMat'].write(self.modelMat)
 
         # Set Texture
         if self.texture:
@@ -59,7 +57,6 @@ class GeometryModel:
 
         # Scale
         modelMatrix = self.scaleMatrix(modelMatrix)
-        print(modelMatrix)
         return modelMatrix
 
     def scaleMatrix(self, modelMatrix):

@@ -10,6 +10,8 @@ class VertexArrayManager:
 
         # Add Cube
         self.addVertexArray(vertArrayName = "Cube", shaderName = "default", bufferName = "Cube")
+        # Add Reference Plane
+        self.addVertexArray(vertArrayName = "RefPlane", shaderName = "refGrid", bufferName = "Plane")
 
     def getVertexArray(self, name):
         return self.vertexArrays[name]

@@ -42,11 +42,7 @@ class RigModel(GeometryModel):
 
         # Rotation
         modelMatrix = modelMatrix @ glm.mat4(rotationMat @ self.initialRotationMat)
-        '''
-        print("======================")
-        print(rotationMat @ self.initialRotationMat)
-        print(glm.mat4(rotationMat @ self.initialRotationMat))
-        '''
+
         # Scale
         modelMatrix = self.scaleMatrix(modelMatrix)
         return modelMatrix

@@ -5,6 +5,7 @@ class ShaderPrograms:
         self.context = context
         self.shaderPrograms = {}
         self.shaderPrograms['default'] = self.getShaderProgram('default')
+        self.shaderPrograms['refGrid'] = self.getShaderProgram('refGrid')
 
     def addShaderProgram(self, fragShaderName, vertexShaderName = None):
         parentDir = '\\'.join(re.split('\\\\|/', __file__)[:-1])

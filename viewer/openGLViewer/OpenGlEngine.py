@@ -4,7 +4,6 @@ import moderngl as mgl
 from utils.MouseState import MouseState
 from viewer.openGLViewer.Camera import Camera
 from viewer.openGLViewer.Scene import Scene
-from viewer.openGLViewer.ShaderPrograms import ShaderPrograms
 from viewer.openGLViewer.Mesh import MeshManager
 
 class OpenGlEngine:
@@ -18,7 +17,7 @@ class OpenGlEngine:
         pg.display.set_mode(size = self.WINDOW_DIM, flags = pg.OPENGL | pg.DOUBLEBUF)
 
         self.context = mgl.create_context()
-        self.context.enable(flags= mgl.DEPTH_TEST|mgl.CULL_FACE)
+        self.context.enable(flags= mgl.DEPTH_TEST|mgl.CULL_FACE|mgl.ONE_MINUS_SRC_ALPHA)
 
         self.clock = pg.time.Clock()
         self.time = 0
