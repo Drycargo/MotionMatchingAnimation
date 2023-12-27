@@ -37,5 +37,9 @@ vec3 getLighted(vec3 color) {
 
 void main() {
     vec3 color = texture(u_texture_0, uv_0).rgb;
-    fragColor = vec4(getLighted(color), 1.0);
+
+    // gamma correction
+    float gamma = 2.2;
+    color = pow(getLighted(pow(color, vec3(gamma))), 1/vec3(gamma));
+    fragColor = vec4(color, 1.0);
 }

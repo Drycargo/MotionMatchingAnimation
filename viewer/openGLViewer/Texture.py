@@ -1,5 +1,6 @@
 import re
 import pygame as pg
+import moderngl as mgl
 
 class TextureManager:
     def __init__(self, context):
@@ -20,6 +21,12 @@ class TextureManager:
             size = rawTexture.get_size(),
             components = 3,
             data = pg.image.tostring(rawTexture, 'RGB'))
+
+        # Enable Mipmap
+        newTexture.filter = (mgl.LINEAR_MIPMAP_LINEAR, mgl.LINEAR)
+        newTexture.build_mipmaps()
+
+        newTexture.anisotropy = 32.0
 
         self.textures[textureName] = newTexture
         return newTexture

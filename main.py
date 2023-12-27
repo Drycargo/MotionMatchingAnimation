@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 from models.BvhModel import BvhAnimation
@@ -9,6 +11,7 @@ from viewer.openGLViewer.modelTypes.RotateModel import RotateModel
 import glm
 import moderngl as mgl
 import pygame as pg
+import imgui
 
 def startSimpleViewer():
     anim = BvhAnimation(filePath="animations/sprint1_subject2.bvh", useRad=False)

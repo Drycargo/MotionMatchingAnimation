@@ -14,7 +14,7 @@ class Scene:
             initScale=(1250,1,1250)
         ))
 
-    def addObject(self, model):
+    def addObject(self, model: GeometryModel):
         self.objects.add(model)
 
     def render(self):
