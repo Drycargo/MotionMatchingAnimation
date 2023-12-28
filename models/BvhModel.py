@@ -1,8 +1,5 @@
 import glm
-import numpy as np
-
 from utils.MatrixUtils import Dir, getRotMat
-from viewer.openGLViewer.OpenGlEngine import OpenGlEngine
 from viewer.openGLViewer.modelTypes.RigModel import RigModel, END_SITE_PREFIX
 
 ROOT_STR = "root"
@@ -132,7 +129,7 @@ class BvhAnimation:
 
         return result
 
-    def createModels(self, renderEngine: OpenGlEngine):
+    def createModels(self, renderEngine):
         for node in self.bvhNodes.values():
             if node.name in self.rootNames:
                 continue

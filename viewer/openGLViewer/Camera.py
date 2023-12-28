@@ -35,7 +35,8 @@ class Camera:
 
     def checkRotate(self):
         (dX, dY) = pg.mouse.get_rel()
-        if self.renderEngine.mouseState.leftDown:
+
+        if self.renderEngine.mouseState.leftDown and not self.renderEngine.mouseState.operatingUi:
             self.yaw -= dX * ROTATE_SENSITIVITY
             self.pitch = glm.clamp(self.pitch + dY* ROTATE_SENSITIVITY, -89, 89)
         if self.renderEngine.mouseState.midDown:

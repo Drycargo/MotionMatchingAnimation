@@ -1,16 +1,20 @@
 import glm
 import pygame as pg
 import moderngl as mgl
+
+from models.BvhModel import BvhAnimation
 from utils.MouseState import MouseState
 from viewer.openGLViewer.Camera import Camera
 from viewer.openGLViewer.GUI.BaseGui import BaseGui
+from viewer.openGLViewer.GUI.Button import Button, PlayPauseButton
 from viewer.openGLViewer.GeometryModel import GeometryModel
 from viewer.openGLViewer.Scene import Scene
 from viewer.openGLViewer.Mesh import MeshManager
-import bimpy as bp
+from tkinter import filedialog
+import tkinter as tk
 
 class OpenGlEngine:
-    def __init__(self, dim = (720, 540), backgroundColor = (0.3, 0.3, 0.3, 1.0), fps = 60, animDatabase = None):
+    def __init__(self, dim = (720, 540), backgroundColor = (0.4, 0.4, 0.4, 1.0), fps = 60, animDatabase = None):
         self.WINDOW_DIM = dim
         self.BG_COLOR = backgroundColor
         self.mouseState = MouseState()
@@ -30,26 +34,46 @@ class OpenGlEngine:
         self.camera = Camera(self, pos=glm.vec3(500, 500, 500), far=1500, yaw = -135, pitch = -45)
         self.meshManager = MeshManager(self)
         self.scene = Scene(self)
-        self.animDatabase = animDatabase
 
         self.paused = False
 
-        if self.animDatabase:
-            self.FPS = 1.0/self.animDatabase.frameDuration
+        if animDatabase:
+            self.setAnimDataBase(animDatabase)
         else:
+            self.animDatabase = None
             self.FPS = fps
 
         self.initializeUIs()
+
+    def setAnimDataBase(self, animDatabase):
+        self.animDatabase = animDatabase
+        self.scene.clear()
+        animDatabase.createModels(self)
+        self.FPS = 1.0 / animDatabase.frameDuration
 
     def initializeUIs(self):
         self.uis = []
         textureManager = self.meshManager.textureManager
 
         # Play/ Pause Button
-        playTex = textureManager.getTexture("play_icon.png")
+        '''
+        playTexStruct = textureManager.getTextureAndId("play_icon.png")
         playPauseShader = self.meshManager.vertArrayManager.shaderPrograms.getShaderProgram("default2D")
-        playPauseButton = BaseGui(self, (64, 64), (20, 20), playPauseShader, playTex)
+        '''
+        playPauseButton = PlayPauseButton(self, (32, 32), (20, 20))
         self.uis.append(playPauseButton)
+
+        # Import Button
+        importTexStruct = textureManager.getTextureAndId("import_icon.png")
+        buttonShader = self.meshManager.vertArrayManager.shaderPrograms.getShaderProgram("button", "default2D")
+        importButton = Button(self, (32, 32), (60, 20), buttonShader, importTexStruct, self.loadNewAnim)
+        self.uis.append(importButton)
+
+    def loadNewAnim(self):
+        root = tk.Tk()
+        filename = filedialog.askopenfilename()
+        self.setAnimDataBase(BvhAnimation(filePath=filename, useRad=False))
+        root.destroy()
 
     def renderUi(self):
         for ui in self.uis:
@@ -109,13 +133,23 @@ class OpenGlEngine:
         # Swap buffer
         pg.display.flip()
 
+    def checkUis(self):
+        self.mouseState.operatingUi = False
+        for ui in self.uis:
+            mouseInside = ui.mouseInside()
+            if mouseInside:
+                if not self.mouseState.operatingUi:
+                    self.mouseState.operatingUi = True
+            ui.update(self.mouseState, mouseInside)
+
     def run(self):
         while self.checkEvents():
             self.camera.update()
+            self.checkUis()
             if (not self.paused) and self.animDatabase:
                 self.time = pg.time.get_ticks() * 0.001
                 self.animDatabase.update()
-            self.clock.tick(self.FPS)
+                self.clock.tick(self.FPS)
             self.render()
 
     def addModel(self, geoModel: GeometryModel):

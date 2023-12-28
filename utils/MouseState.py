@@ -4,3 +4,4 @@ class MouseState:
         self.midDown = False
         self.rightDown = False
         self.relScroll = 0
+        self.operatingUi = False

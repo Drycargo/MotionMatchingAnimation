@@ -23,10 +23,11 @@ def startSimpleViewer():
 def startOpenGlViewer():
 
     anim = BvhAnimation(filePath="animations/sprint1_subject4.bvh", useRad=False)
+
     openGlViewer = OpenGlEngine(animDatabase=anim)
     sampleLight = Light(pos=glm.vec3(0, 0, 200), color=glm.vec3(1, 1, 1))
     openGlViewer.addLight(sampleLight)
-    anim.createModels(openGlViewer)
+    #anim.createModels(openGlViewer)
     openGlViewer.run()
     '''
     openGlViewer = OpenGlEngine()

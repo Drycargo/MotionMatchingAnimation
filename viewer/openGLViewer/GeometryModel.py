@@ -10,7 +10,12 @@ class GeometryModel:
         self.transform = ObjectTransform(initPos, initRot, initScale)
 
         self.vertexArray = self.renderEngine.meshManager.vertArrayManager.getVertexArray(vertexArrayName)
-        self.texture = self.renderEngine.meshManager.textureManager.getTexture(textureName) if textureName else None
+        texStruct = self.renderEngine.meshManager.textureManager.getTextureAndId(textureName) if textureName else None
+        if texStruct:
+            self.texture, self.texId = texStruct
+        else:
+            self.texture = None
+            self.texId = None
 
         self.shaderProgram = self.vertexArray.program
 
@@ -22,8 +27,8 @@ class GeometryModel:
 
         # Set Texture
         if self.texture:
-            self.shaderProgram['u_texture_0'] = 0
-            self.texture.use()
+            self.shaderProgram['u_texture_0'] = self.texId
+            self.texture.use(self.texId)
 
     def update(self):
         self.updateMatrices()

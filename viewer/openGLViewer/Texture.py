@@ -6,10 +6,11 @@ class TextureManager:
     def __init__(self, context):
         self.context = context
         self.textures = {}
+        self.textureCount = 0
 
-    def getTexture(self, textureName, flip = False):
+    def getTextureAndId(self, textureName, flip = False):
         if textureName in self.textures:
-            return self.textures[textureName]
+            return self.textures[textureName]['texture'], self.textures[textureName]['Id']
 
         parentDir = '\\'.join(re.split('\\\\|/', __file__)[:-1])
         rawTexture = pg.image.load("{}\\textures\\{}".format(parentDir, textureName)).convert()
@@ -28,9 +29,10 @@ class TextureManager:
 
         newTexture.anisotropy = 32.0
 
-        self.textures[textureName] = newTexture
-        return newTexture
+        self.textures[textureName] = {'texture': newTexture, 'Id': self.textureCount}
+        self.textureCount += 1
+        return self.textures[textureName]['texture'], self.textures[textureName]['Id']
 
     def destroy(self):
-        for texture in self.textures.values():
-            texture.release()
+        for textureStruct in self.textures.values():
+            textureStruct['texture'].release()

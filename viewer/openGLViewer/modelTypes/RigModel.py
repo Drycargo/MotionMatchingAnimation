@@ -24,7 +24,7 @@ class RigModel(GeometryModel):
         rigOffset = node.endsiteOffset if self.isEndSite else node.offsetValues
         rigLength = glm.length(rigOffset)
         rotZ = math.asin(rigOffset[1] / rigLength)
-        rotY = math.atan2(rigOffset[2], rigOffset[0])
+        rotY = -math.atan2(rigOffset[2], rigOffset[0])
 
         self.initialRotationMat = getRotMat(rotY, Dir.Y, True) @ getRotMat(rotZ, Dir.Z, True)
 

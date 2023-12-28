@@ -6,13 +6,14 @@ class Scene:
     def __init__(self, renderEngine):
         self.renderEngine = renderEngine
         self.objects = set()
-
-        # Add Reference Plane
-        self.addObject(ReferenceGridModel(
+        self.refPlane = ReferenceGridModel(
             renderEngine=renderEngine,
             vertexArrayName="RefPlane",
             initScale=(1250,1,1250)
-        ))
+        )
+
+        # Add Reference Plane
+        self.addObject(self.refPlane)
 
     def addObject(self, model: GeometryModel):
         self.objects.add(model)
@@ -20,3 +21,7 @@ class Scene:
     def render(self):
         for obj in self.objects:
             obj.render()
+
+    def clear(self):
+        self.objects = set()
+        self.addObject(self.refPlane)
