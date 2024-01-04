@@ -1,4 +1,6 @@
 import glm
+import torch
+
 from utils.MatrixUtils import Dir, getRotMat
 from viewer.openGLViewer.modelTypes.RigModel import RigModel, END_SITE_PREFIX
 
@@ -46,6 +48,8 @@ class BvhAnimation:
         with open(filePath) as bvhContent:
             self.parseFile(bvhContent)
 
+        self.generateTensors()
+
     def getNode(self, nodeName):
         return self.bvhNodes[nodeName]
 
@@ -66,7 +70,6 @@ class BvhAnimation:
 
             posOffset = currNode.offsetValues
 
-            #parentRotMat = self.bvhNodes[currNode.parent].currentRotMat if currNode.parent else np.eye(3)
             currNode.currentRotMat = self.bvhNodes[currNode.parent].currentRotMat if currNode.parent else glm.mat3()
 
             for i in range(0, len(currNode.channelNames)):
@@ -215,4 +218,66 @@ class BvhAnimation:
                     self.frameDuration = float(line.split()[-1])
                 else:
                     self.frames.append([float(val) for val in line.split()])
-    
+
+    def generateTensors(self):
+        self.tensorsByFrame = []
+
+        maxSpeed = 0
+        lastGlobalPos = torch.tensor([0.0, 0.0, 0.0])
+        currentGlobalPos = torch.tensor([0.0, 0.0, 0.0])
+
+        # Round 1: initialize 6D rotation & linear velocity tensors
+        for frameNumber in range(0, len(self.frames)):
+            tensors = []
+            for nodeName in self.traverseOrder:
+                currNode = self.bvhNodes[nodeName]
+
+                localRotMat = glm.mat3()
+
+                for i in range(0, len(currNode.channelNames)):
+                    channelName = currNode.channelNames[i]
+                    channelVal = self.frames[frameNumber][currNode.channelOffset + i]
+
+                    # Get channel axis
+                    axis = channelName[0].lower()
+                    if axis == 'x':
+                        axis = Dir.X
+                    elif axis == 'y':
+                        axis = Dir.Y
+                    else:
+                        axis = Dir.Z
+
+                    channelType = channelName[1:].lower()
+                    if channelType == CHANNEL_ROTATION_STR:
+                        localRotMat = localRotMat @ getRotMat(channelVal, axis, useRad=self.useRad)
+                    elif channelType == CHANNEL_POSITION_STR:
+                        # Root obj
+                        currentGlobalPos[axis.value] = channelVal
+
+                # Create Tensor Content
+                # Add 6D representation of rotation
+                tensors.append(torch.tensor(localRotMat[0].to_list() + localRotMat[1].to_list()))
+
+                if frameNumber > 0:
+                    if not currNode.parent:
+                        # root - Add velocity
+                        currentVel = currentGlobalPos - lastGlobalPos
+                        tensors.insert(0, currentVel)
+                        maxSpeed = max(maxSpeed, currentVel.norm())
+                        lastGlobalPos.copy_(currentGlobalPos)
+
+                        if frameNumber == 1:
+                            self.tensorsByFrame[0].insert(0, currentVel)
+
+            self.tensorsByFrame.append(tensors)
+
+        # Round2: Normalize Velocities (divide by maxSpeed), calculate angular velocities
+        for frameNumber in range(0, len(self.frames)):
+            if maxSpeed > 0:
+                self.tensorsByFrame[frameNumber][0] /= maxSpeed
+
+            if frameNumber > 0:
+                for nodeId in range(1, len(self.tensorsByFrame[frameNumber])):
+                    lastRot = self.tensorsByFrame[frameNumber - 1][nodeId][:6]
+                    currRot = self.tensorsByFrame[frameNumber][nodeId][:6]
+                    self.tensorsByFrame[frameNumber][nodeId] = torch.cat((currRot, currRot - lastRot))

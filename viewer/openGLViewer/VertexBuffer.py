@@ -54,15 +54,14 @@ class VertexBufferManager:
             (topLeftPosNorm[0] + sizeNorm[0], topLeftPosNorm[1] - sizeNorm[1])
         ]
 
-        verticeUv = [(0, 0), (1, 0), (0, 1), (1, 1)]
-
         triangleIndicePos = [
             (0, 2, 1), (1, 2, 3)
         ]
 
-        return [
-            (verticeUv, triangleIndicePos),
-            (verticePos, triangleIndicePos)]
+        verticeUv = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        indPair =  [(verticeUv, triangleIndicePos),
+                    (verticePos, triangleIndicePos)]
+        return indPair
 
     @staticmethod
     def getCubeIndPairs():

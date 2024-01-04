@@ -7,6 +7,7 @@ from utils.MouseState import MouseState
 from viewer.openGLViewer.Camera import Camera
 from viewer.openGLViewer.GUI.BaseGui import BaseGui
 from viewer.openGLViewer.GUI.Button import Button, PlayPauseButton
+from viewer.openGLViewer.GUI.ProgressBar import ProgressBar
 from viewer.openGLViewer.GeometryModel import GeometryModel
 from viewer.openGLViewer.Scene import Scene
 from viewer.openGLViewer.Mesh import MeshManager
@@ -56,10 +57,6 @@ class OpenGlEngine:
         textureManager = self.meshManager.textureManager
 
         # Play/ Pause Button
-        '''
-        playTexStruct = textureManager.getTextureAndId("play_icon.png")
-        playPauseShader = self.meshManager.vertArrayManager.shaderPrograms.getShaderProgram("default2D")
-        '''
         playPauseButton = PlayPauseButton(self, (32, 32), (20, 20))
         self.uis.append(playPauseButton)
 
@@ -69,10 +66,18 @@ class OpenGlEngine:
         importButton = Button(self, (32, 32), (60, 20), buttonShader, importTexStruct, self.loadNewAnim)
         self.uis.append(importButton)
 
+        # Progress Bar
+        progressBarLen = 300
+        progressBar = ProgressBar(self, (progressBarLen, 15), \
+                                  ((self.WINDOW_DIM[0] - progressBarLen)/2, self.WINDOW_DIM[1] - 30))
+        self.uis.append(progressBar)
+
     def loadNewAnim(self):
         root = tk.Tk()
-        filename = filedialog.askopenfilename()
-        self.setAnimDataBase(BvhAnimation(filePath=filename, useRad=False))
+        filename = filedialog.askopenfilename(filetypes = [("BVH Animation", ".bvh")])
+
+        if filename:
+            self.setAnimDataBase(BvhAnimation(filePath=filename, useRad=False))
         root.destroy()
 
     def renderUi(self):
